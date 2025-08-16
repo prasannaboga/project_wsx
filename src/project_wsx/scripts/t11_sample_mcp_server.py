@@ -14,9 +14,11 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
+from project_wsx.utils import get_project_root
+
 load_dotenv()
 
-log_dir = Path(__file__).resolve().parent.parent / "logs"
+log_dir = get_project_root() / "logs"
 log_dir.mkdir(exist_ok=True)
 
 log_file = log_dir / "development.log"
