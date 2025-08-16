@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-from project_wsx.utils import get_project_root
+from project_wsx.utils.get_project_root import get_project_root
 
 load_dotenv()
 
