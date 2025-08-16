@@ -1,6 +1,6 @@
 # Project WSX
 
-# Terminal Commands
+### Terminal Commands
 
 run sample mcp server
 ```shell
