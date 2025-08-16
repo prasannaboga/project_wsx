@@ -28,7 +28,7 @@ logging.basicConfig(
 )
 
 mcp = FastMCP(
-    "sample_server", host="127.0.0.1", port=8001, log_level="DEBUG", debug=True
+    "sample_mcp_server", host="127.0.0.1", port=8001, log_level="DEBUG", debug=True
 )
 
 

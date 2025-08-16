@@ -3,9 +3,10 @@ authors = [{name = "Prasanna Kumar", email = "prasannaboga@gmail.com"}]
 dependencies = [
   "aiohttp==3.12.15",
   "BeautifulSoup4==4.13.4",
-  "mcp==1.13.0",
+  "mcp[cli] (>=1.13.0,<2.0.0)",
   "python-dotenv==1.1.1",
   "streamlit==1.48.1",
+  "uv==0.8.11",
 ]
 description = ""
 name = "project-wsx"
