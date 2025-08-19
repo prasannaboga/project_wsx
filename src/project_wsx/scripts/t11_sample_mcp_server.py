@@ -5,14 +5,12 @@ import asyncio
 import logging
 import os
 import sys
-from email import parser
-from pathlib import Path
 
 import aiohttp
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, prompts
 
 from project_wsx.utils.get_project_root import get_project_root
 
@@ -133,6 +131,42 @@ def send_email(mail_subject: str, mail_body: str, to_email: str) -> dict:
     except Exception as e:
         logging.exception("Failed to send email")
         return {"status": "error", "message": str(e)}
+
+
+@mcp.resource("config://settings")
+def get_config() -> dict:
+    return {"theme": "dark", "language": "en"}
+
+
+@mcp.resource("file://documents/{name}", title="Document Resource")
+def get_file(name: str):
+    if name == "hello.txt":
+        return "Hello world!"
+    elif name == "bye.txt":
+        return "Goodbye!"
+    else:
+        raise FileNotFoundError(f"No document named {name}")
+
+
+@mcp.prompt(title="Code Review")
+def review_code(code: str) -> str:
+    return f"Please review this code:\n\n{code}"
+
+
+@mcp.prompt(title="Debug Assistant")
+def debug_error(error: str) -> list[prompts.base.Message]:
+    return [
+        prompts.base.UserMessage("I'm seeing this error:"),
+        prompts.base.UserMessage(error),
+        prompts.base.AssistantMessage(
+            "I'll help debug that. What have you tried so far?"
+        ),
+    ]
+
+
+@mcp.prompt("greet")
+def greet_prompt(name: str):
+    return f"Hello {name}, welcome to the MCP world!"
 
 
 def main():

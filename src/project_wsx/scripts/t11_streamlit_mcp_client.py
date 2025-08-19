@@ -23,15 +23,20 @@ async def display_mcp_tools(session: ClientSession):
 async def display_mcp_resources(session: ClientSession):
     resources_response = await session.list_resources()
 
-    for resource in resources_response.resources:
-        display_name = get_display_name(resource)
-        print(f"Resource: {display_name} ({resource.uri})")
+    with st.expander("See Resources"):
+        for resource in resources_response.resources:
+            st.json(resource)
 
-    templates_response = await session.list_resource_templates()
-    for template in templates_response.resourceTemplates:
-        display_name = get_display_name(template)
-        print(f"Resource Template: {display_name}")
+        templates_response = await session.list_resource_templates()
+        for template in templates_response.resourceTemplates:
+            st.json(template)
 
+async def display_mcp_prompts(session: ClientSession):
+    prompts_response = await session.list_prompts()
+
+    with st.expander("See Prompts"):
+        for prompt in prompts_response.prompts:
+            st.json(prompt)
 
 async def get_my_mcp_details():
     async with streamablehttp_client(MCP_SERVER_URL) as (
@@ -43,6 +48,7 @@ async def get_my_mcp_details():
             await session.initialize()
             await display_mcp_tools(session)
             await display_mcp_resources(session)
+            await display_mcp_prompts(session)
 
 
 asyncio.run(get_my_mcp_details())
