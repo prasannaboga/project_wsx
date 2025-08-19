@@ -107,7 +107,7 @@ async def extract_metadata(url: str) -> dict:
 
 
 @mcp.tool()
-def send_email(mail_subject: str, mail_body: str, to_email: str):
+def send_email(mail_subject: str, mail_body: str, to_email: str) -> dict:
     logging.info(
         f"send_email called with params: {{'mail_subject': {mail_subject}, 'mail_body': {mail_body}, 'to_email': {to_email}}}"
     )
