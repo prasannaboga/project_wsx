@@ -12,6 +12,7 @@ install sample mcp server
 
 ```shell
 mcp install --with /Users/prasannaboga/Projects/project_wsx --with "mcp[cli]" src/project_wsx/scripts/t11_sample_mcp_server.py
+mcp install --with /Users/prasannaboga/Projects/project_wsx --with "mcp[cli]" src/project_wsx/scripts/t12_task_mcp_server.py
 ```
 
 run sample streamlit
