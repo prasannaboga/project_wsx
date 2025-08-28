@@ -6,6 +6,7 @@ run sample mcp server
 
 ```shell
 poetry run t11_sample_mcp_server --transport streamable-http
+poetry run t12_task_mcp_server --transport streamable-http
 ```
 
 install sample mcp server
@@ -19,4 +20,5 @@ run sample streamlit
 
 ```shell
 poetry run streamlit run src/project_wsx/scripts/t11_streamlit_mcp_client.py
+poetry run streamlit run src/project_wsx/scripts/t12_task_mcp_client.py
 ```

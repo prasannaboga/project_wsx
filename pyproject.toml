@@ -8,6 +8,7 @@ dependencies = [
   "streamlit==1.48.1",
   "uv==0.8.11",
   "watchdog (>=6.0.0,<7.0.0)",
+  "watchfiles (>=1.1.0,<2.0.0)",
 ]
 description = "My Project WSX"
 name = "project-wsx"
@@ -28,3 +29,5 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 [project.scripts]
 hello_world = "project_wsx.scripts.hello_world:main"
 t11_sample_mcp_server = "project_wsx.scripts.t11_sample_mcp_server:main"
+t12_task_mcp_server = "project_wsx.scripts.t12_task_mcp_server:main"
+t12_task_mcp_client = "project_wsx.scripts.t12_task_mcp_client:main"
