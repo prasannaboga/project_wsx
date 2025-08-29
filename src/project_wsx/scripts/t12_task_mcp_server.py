@@ -7,7 +7,12 @@ from datetime import datetime
 from mcp.server.fastmcp import Context, FastMCP
 
 mcp = FastMCP(
-    "task_mcp_server", host="127.0.0.1", port=8002, log_level="DEBUG", debug=True
+    "task_mcp_server",
+    host="127.0.0.1",
+    port=8002,
+    stateless_http=True,
+    log_level="DEBUG",
+    debug=True,
 )
 
 DATA_DIR = "data"
