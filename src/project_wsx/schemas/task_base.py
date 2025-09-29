@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -26,14 +27,18 @@ class TaskCreate(TaskBase):
 
 
 class TaskUpdate(TaskBase):
-    @field_validator("title")
+    title: Optional[str] = None
+    due_date: Optional[datetime] = None
+    status: Optional[str] = None
+
+    @field_validator("title", mode="before")
     @classmethod
     def title_must_not_be_blank(cls, v):
         if v is not None and not v.strip():
             raise ValueError("Title must not be blank")
         return v
 
-    @field_validator("due_date")
+    @field_validator("due_date", mode="before")
     @classmethod
     def due_date_must_not_be_blank(cls, v):
         if v is not None and not v:
