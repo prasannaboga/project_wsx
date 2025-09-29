@@ -1,12 +1,15 @@
 [project]
-authors = [{name = "Prasanna Kumar", email = "prasannaboga@gmail.com"}]
+authors = [{ name = "Prasanna Kumar", email = "prasannaboga@gmail.com" }]
 dependencies = [
   "aiohttp==3.12.15",
   "BeautifulSoup4==4.13.4",
+  "fastapi[standard] (>=0.118.0,<0.119.0)",
   "mcp[cli]>=1.13.0,<2.0.0",
   "python-dotenv==1.1.1",
+  "sqlalchemy (>=2.0.43,<3.0.0)",
   "streamlit==1.48.1",
   "uv==0.8.11",
+  "uvicorn (>=0.37.0,<0.38.0)",
   "watchdog (>=6.0.0,<7.0.0)",
   "watchfiles (>=1.1.0,<2.0.0)",
 ]
@@ -14,10 +17,10 @@ description = "My Project WSX"
 name = "project-wsx"
 readme = "README.md"
 requires-python = ">=3.13"
-version = "0.1.0"
+version = "0.1.1"
 
 [tool.poetry]
-packages = [{include = "project_wsx", from = "src"}]
+packages = [{ include = "project_wsx", from = "src" }]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -29,5 +32,5 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 [project.scripts]
 hello_world = "project_wsx.scripts.hello_world:main"
 t11_sample_mcp_server = "project_wsx.scripts.t11_sample_mcp_server:main"
-t12_task_mcp_server = "project_wsx.scripts.t12_task_mcp_server:main"
 t12_task_mcp_client = "project_wsx.scripts.t12_task_mcp_client:main"
+t12_task_mcp_server = "project_wsx.scripts.t12_task_mcp_server:main"

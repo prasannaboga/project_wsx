@@ -2,6 +2,11 @@
 
 ### Terminal Commands
 
+activate shell
+```shell
+eval $(poetry env activate)
+```
+
 run sample mcp server
 
 ```shell
