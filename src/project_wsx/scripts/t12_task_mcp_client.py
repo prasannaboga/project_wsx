@@ -1,27 +1,59 @@
 import asyncio
 import time
 from datetime import datetime
-
+import traceback
 import streamlit as st
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 
 
+MCP_SERVER_URL = "http://127.0.0.1:8002/mcp"
+
+
+class MCPClient:
+    def __init__(self, url=MCP_SERVER_URL):
+        self.url = url
+        self.session = None
+        self.client = None
+
+    async def connect(self):
+        if self.session:
+            return self.session
+
+        self.client = await streamablehttp_client(self.url)
+        read_stream, write_stream, _ = self.client
+        self.session = ClientSession(read_stream, write_stream)
+        await self.session.initialize()
+        return self.session
+
+    async def call_tool(self, tool_name: str, args: dict):
+        session = await self.connect()
+        result = await session.call_tool(tool_name, args)
+
+        if result.structuredContent:
+            return result.structuredContent
+        return {"text": result.content[0].text}
+
+    async def close(self):
+        if self.session:
+            await self.session.close()
+            self.session = None
+
+
+@st.cache_resource
+def get_mcp_client():
+    return MCPClient()
+
+
 async def call_add_task(title: str, due_date: str) -> str:
     """Call the add_task tool on the MCP server."""
     try:
-        async with streamablehttp_client("http://127.0.0.1:8002/mcp") as (
-            read_stream,
-            write_stream,
-            _,
-        ):
-            async with ClientSession(read_stream, write_stream) as session:
-                await session.initialize()
-                result = await session.call_tool(
-                    "add_task", {"title": title, "due_date": due_date}
-                )
-                return result.structuredContent.get("result", str(str(result.content[0].text)))  
+        client = get_mcp_client()
+        return await client.call_tool(
+            "add_task", {"title": title, "due_date": due_date}
+        )
     except Exception as e:
+        st.error(traceback.format_exc())
         return f"Error: {str(e)}"
 
 
