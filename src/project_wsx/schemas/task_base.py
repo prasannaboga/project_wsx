@@ -6,6 +6,7 @@ from pydantic import BaseModel, field_validator
 class TaskBase(BaseModel):
     title: str
     due_date: datetime
+    status: str | None = "pending"
 
 
 class TaskCreate(TaskBase):
