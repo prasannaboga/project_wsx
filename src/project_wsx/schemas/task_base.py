@@ -24,6 +24,22 @@ class TaskCreate(TaskBase):
         return v
 
 
+class TaskUpdate(TaskBase):
+    @field_validator("title")
+    @classmethod
+    def title_must_not_be_blank(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError("Title must not be blank")
+        return v
+
+    @field_validator("due_date")
+    @classmethod
+    def due_date_must_not_be_blank(cls, v):
+        if v is not None and not v:
+            raise ValueError("Due date must not be blank")
+        return v
+
+
 class TaskRead(TaskBase):
     id: int
     created_at: datetime
