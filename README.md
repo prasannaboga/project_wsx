@@ -7,6 +7,11 @@ activate shell
 eval $(poetry env activate)
 ```
 
+running fastapi server
+```
+fastapi dev -e src.project_wsx.main:app --port 8101
+```
+
 run sample mcp server
 
 ```shell
