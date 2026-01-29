@@ -1,0 +1,26 @@
+RAG - Pdf Example
+
+┌─────────────┐
+│  config.yaml│
+└──────┬──────┘
+       │
+┌──────▼────────┐
+│ ExtractSvc    │  → PDF → text chunks
+│ (PDF parsing) │
+└──────┬────────┘
+       │
+┌──────▼────────┐
+│ EmbedSvc      │  → text → embeddings
+│ (local model) │
+└──────┬────────┘
+       │
+┌──────▼────────┐
+│ Vector Store  │  → FAISS / Chroma
+│ (storage)     │
+└──────┬────────┘
+       │
+┌──────▼────────┐
+│ RAG API       │  → query → context → LLM
+│ (FastAPI)     │
+└───────────────┘
+

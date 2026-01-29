@@ -15,6 +15,7 @@ dependencies = [
   "watchfiles==1.1.1",
   "google-adk (>=1.21.0,<2.0.0)",
   "loguru (>=0.7.3,<0.8.0)",
+  "pypdf (>=6.5.0,<7.0.0)",
 ]
 description = "My Project WSX"
 name = "project-wsx"
@@ -34,6 +35,7 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 
 [project.scripts]
 hello_world = "project_wsx.scripts.hello_world:main"
+t09_bootstrap_ingest = "project_wsx.scripts.t09_bootstrap_ingest:main"
 t11_sample_mcp_server = "project_wsx.scripts.t11_sample_mcp_server:main"
 t12_task_mcp_client = "project_wsx.scripts.t12_task_mcp_client:main"
 t12_task_mcp_server = "project_wsx.scripts.t12_task_mcp_server:main"

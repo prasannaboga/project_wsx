@@ -9,3 +9,5 @@ __pycache__/
 .venv/
 data/tasks.json
 development_wsx.sqlite
+data/*
+.DS_Store
