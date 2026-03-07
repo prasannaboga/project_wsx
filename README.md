@@ -32,3 +32,9 @@ run sample streamlit
 poetry run streamlit run src/project_wsx/scripts/t11_streamlit_mcp_client.py
 poetry run streamlit run src/project_wsx/scripts/t12_task_mcp_client.py
 ```
+
+
+RAG Example 
+```
+poetry run t09_bootstrap_ingest
+```

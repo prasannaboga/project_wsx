@@ -4,16 +4,83 @@ import os
 from asyncio import tasks
 from datetime import datetime
 
+import requests
+from jose import jwt
+from mcp.server.auth.provider import AccessToken, TokenVerifier
+from mcp.server.auth.settings import AuthSettings
 from mcp.server.fastmcp import Context, FastMCP
+from pydantic import AnyHttpUrl
+
+from project_wsx.core.logging import logger
+from project_wsx.core.settings import Settings
+
+logger.info("Starting Task MCP Server...")
+settings = Settings()
+
+
+def _parse_bool(value: str | None, default: bool = False) -> bool:
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _parse_scopes(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [scope for scope in value.split() if scope]
+
+
+class Auth0TokenVerifier(TokenVerifier):
+    def __init__(self, issuer: str, audience: str) -> None:
+        self.issuer = issuer    
+        self.audience = audience
+        jwks_url = f"{issuer}/.well-known/jwks.json"
+        self.jwks = requests.get(jwks_url).json()["keys"]
+        
+    async def verify_token(self, token: str) -> AccessToken | None:
+        try:
+            payload = jwt.decode(
+                token,
+                self.jwks,
+                algorithms=["RS256"],
+                audience=self.audience,
+                issuer=self.issuer,
+            )
+        except Exception as e:
+            logger.error(f"Token verification failed: {e}")
+            return None
+        
+        return AccessToken(
+            sub=payload.get("sub"),
+            scopes=payload.get("scope", "").split(),
+            expires_at=payload.get("exp"),
+            issued_at=payload.get("iat"),
+            raw=payload
+        )
+
+
+auth_settings = None
+token_verifier = None
+if settings.mcp_auth_enabled:
+    logger.info("MCP Authentication is ENABLED. Configuring auth settings...")
+    auth_settings = AuthSettings(
+        issuer_url=AnyHttpUrl("https://prasannaboga-dev.us.auth0.com"),
+        resource_server_url=AnyHttpUrl("https://prasannaboga-dev.us.auth0.com/api/v2/"),
+    )
+    token_verifier = Auth0TokenVerifier("https://prasannaboga-dev.us.auth0.com", "https://prasannaboga-dev.us.auth0.com/api/v2/")
 
 mcp = FastMCP(
     "task_mcp_server",
     host="127.0.0.1",
     port=8002,
     stateless_http=True,
+    json_response=True,
     log_level="DEBUG",
     debug=True,
+    auth=auth_settings,
+    token_verifier=token_verifier,
 )
+
 
 DATA_DIR = "data"
 TASKS_FILE = os.path.join(DATA_DIR, "tasks.json")

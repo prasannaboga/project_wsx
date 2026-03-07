@@ -2,5 +2,6 @@
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
     "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 2000
+    "files.autoSaveDelay": 2000,
+    "python.terminal.useEnvFile": true
 }
