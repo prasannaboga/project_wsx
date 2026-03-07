@@ -11,3 +11,4 @@ data/tasks.json
 development_wsx.sqlite
 data/*
 .DS_Store
+testcode.ipynb
