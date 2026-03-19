@@ -25,6 +25,8 @@
                   └───────────────┘
 
 
+
+
                  +-------------------+
                  | Auth0 OAuth       |
                  |-------------------|
@@ -45,6 +47,8 @@
                            ▼
                        AI Clients
                (Postman / Cursor / Claude)
+
+
 
 
                   Postman / Cursor
