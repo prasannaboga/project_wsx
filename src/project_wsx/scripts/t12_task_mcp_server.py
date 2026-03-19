@@ -1,13 +1,8 @@
-import asyncio
 import json
 import os
-from asyncio import tasks
 from datetime import datetime
 
 import jwt
-import requests
-from jose import jwt
-from jwt import PyJWKClient
 from mcp.server.auth.provider import AccessToken, TokenVerifier
 from mcp.server.auth.settings import AuthSettings
 from mcp.server.fastmcp import Context, FastMCP
@@ -33,7 +28,7 @@ class Auth0TokenVerifier(TokenVerifier):
         self.audience = settings.auth0_audience
         self.jwks_url = f"https://{settings.auth0_domain}/.well-known/jwks.json"
         self.issuer = f"https://{settings.auth0_domain}/"
-        self.jwks_client = PyJWKClient(self.jwks_url)
+        self.jwks_client = jwt.PyJWKClient(self.jwks_url)
 
     async def verify_token(self, token: str) -> AccessToken | None:
         try:
@@ -93,9 +88,6 @@ def load_tasks():
 tasks = load_tasks()
 
 
-# -------------------------
-# 🔹 TOOL: Add a new task
-# -------------------------
 @mcp.tool(
     name="add_task",
     title="Add Task",
@@ -121,9 +113,6 @@ async def add_task(title: str, due_date: str, ctx: Context) -> str:
     return f"Task '{title}' added with ID {task_id}"
 
 
-# -------------------------
-# 🔹 RESOURCE: Query tasks
-# -------------------------
 @mcp.resource("tasks://all")
 def get_all_tasks():
     """
@@ -142,9 +131,6 @@ def get_task(task_id: str):
     return tasks[task_id]
 
 
-# -------------------------
-# 🔹 PROMPT: Create summary
-# -------------------------
 @mcp.prompt("task_summary")
 def task_summary_prompt(user_name: str):
     """
@@ -167,8 +153,5 @@ def main():
     mcp.run(transport="streamable-http")
 
 
-# -------------------------
-# 🚀 Run
-# -------------------------
 if __name__ == "__main__":
     main()
