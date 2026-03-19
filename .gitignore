@@ -12,3 +12,4 @@ development_wsx.sqlite
 data/*
 .DS_Store
 testcode.ipynb
+todo.md

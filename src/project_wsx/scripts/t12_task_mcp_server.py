@@ -30,15 +30,14 @@ auth_settings = AuthSettings(
 class Auth0TokenVerifier(TokenVerifier):
     def __init__(self):
         self.domain = settings.auth0_domain
-        self.audience = settings.resource_server_url
+        self.audience = settings.auth0_audience
         self.jwks_url = f"https://{settings.auth0_domain}/.well-known/jwks.json"
         self.issuer = f"https://{settings.auth0_domain}/"
         self.jwks_client = PyJWKClient(self.jwks_url)
 
-
     async def verify_token(self, token: str) -> AccessToken | None:
         try:
-            signing_key = self.jwks_client.get_signing_key_from_jwt(token) 
+            signing_key = self.jwks_client.get_signing_key_from_jwt(token)
             payload = jwt.decode(
                 token,
                 signing_key.key,
@@ -53,7 +52,6 @@ class Auth0TokenVerifier(TokenVerifier):
                 scopes=payload.get("scope", "").split(),
                 expires_at=payload.get("exp"),
                 issued_at=payload.get("iat"),
-                resource=self.audience
             )
         except Exception as e:
             logger.error(f"Token verification failed: {e}")
@@ -71,7 +69,7 @@ mcp = FastMCP(
     log_level="DEBUG",
     debug=True,
     auth=auth_settings,
-    token_verifier=token_verifier
+    token_verifier=token_verifier,
 )
 
 
