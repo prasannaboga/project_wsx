@@ -1,3 +1,5 @@
+## RAG - PDF Example Flowchart
+
                   RAG - Pdf Example
 
                   ┌─────────────┐
@@ -24,7 +26,7 @@
                   │ (FastAPI)     │
                   └───────────────┘
 
-
+## Auth0 OAuth Flowchart
 
 
                  +-------------------+
@@ -49,6 +51,7 @@
                (Postman / Cursor / Claude)
 
 
+## OAuth Authorization Flowchart
 
 
                   Postman / Cursor
