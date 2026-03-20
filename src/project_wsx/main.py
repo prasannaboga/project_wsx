@@ -5,6 +5,9 @@ from fastapi import FastAPI
 
 from project_wsx.db import init_db
 from project_wsx.api import api_router
+from project_wsx.core.settings import Settings
+
+settings = Settings()
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -27,7 +30,7 @@ def index():
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "environment": settings.environment}
 
 
 app.include_router(api_router, prefix="/api")
