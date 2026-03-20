@@ -16,7 +16,7 @@ settings = Settings()
 logger.debug(f"Loaded settings: {settings.model_dump()}")
 
 auth_settings = AuthSettings(
-    issuer_url=AnyHttpUrl("http://localhost:8002"),
+    issuer_url=AnyHttpUrl(f"https://{settings.auth0_domain}/"),
     resource_server_url=AnyHttpUrl("http://localhost:8002/mcp"),
     required_scopes=["read:tasks", "write:tasks", "openid", "profile", "email"],
 )
