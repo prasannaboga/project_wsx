@@ -25,5 +25,9 @@ app = FastAPI(lifespan=lifespan)
 def index():
     return {"Hello": "World"}
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 app.include_router(api_router, prefix="/api")
