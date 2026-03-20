@@ -12,6 +12,11 @@ running fastapi server
 fastapi dev -e src.project_wsx.main:app --port 8101
 ```
 
+production
+```
+PYTHONPATH=src gunicorn project_wsx.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8101 --workers 4 --log-level debug --timeout 120
+```
+
 run sample mcp server
 
 ```shell
