@@ -2,19 +2,30 @@
 
 ### Terminal Commands
 
-activate shell
+Activate shell
 ```shell
 eval $(poetry env activate)
 ```
 
-running fastapi server
+Running fastapi server
 ```
 fastapi dev -e src.project_wsx.main:app --port 8101
 ```
 
-production
+Development
+```
+uvicorn project_wsx.main:app --host 0.0.0.0 --port 8101 --workers 4 --reload --log-level=debug
+```
+
+Production
 ```
 PYTHONPATH=src gunicorn project_wsx.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8101 --workers 4 --log-level debug --timeout 120
+```
+
+Docker 
+```
+docker build -f Dockerfile.production -t project_wsx:2026.v3 .
+docker run --rm -p 8101:8101 --env-file .env project_wsx:2026.v3
 ```
 
 run sample mcp server
