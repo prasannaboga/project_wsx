@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from project_wsx.api import api_router
 from project_wsx.core.logging import logger
 from project_wsx.core.settings import Settings
-from project_wsx.db import init_db
+from project_wsx.core.database import init_db
 from project_wsx.mcp.registry import register_all
 from project_wsx.mcp.server import create_mcp
 

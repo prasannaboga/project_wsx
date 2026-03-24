@@ -2,7 +2,7 @@ from sqlalchemy import (Column, DateTime, ForeignKey, Index, Integer, String,
                         Text, func)
 from sqlalchemy.orm import relationship
 
-from project_wsx.db import Base
+from project_wsx.core.database import Base
 
 
 class DocumentChunk(Base):

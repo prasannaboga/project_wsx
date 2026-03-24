@@ -14,7 +14,8 @@ fastapi dev -e src.project_wsx.main:app --port 8101
 
 Development
 ```
-uvicorn project_wsx.main:app --host 0.0.0.0 --port 8101 --workers 4 --reload --log-level=debug
+uvicorn project_wsx.main:app --host 0.0.0.0 --port 8101 --reload --log-level=debug
+uvicorn project_wsx.main:app --host 0.0.0.0 --port 8101 --workers 4 --log-level=debug
 ```
 
 Production

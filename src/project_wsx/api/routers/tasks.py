@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from project_wsx import models, schemas
-from project_wsx.db import get_db
+from project_wsx.core.database import get_db
 
 tasks_router = APIRouter(prefix="/tasks", tags=["tasks"])
 
