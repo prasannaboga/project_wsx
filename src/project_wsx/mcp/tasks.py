@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from mcp.server.fastmcp import Context
@@ -130,3 +131,69 @@ def register(mcp):
             return {
                 "detail": f"Task '{task.title}' (id={task_id}) deleted successfully."
             }
+
+    @mcp.resource("tasks://last_five")
+    def resource_last_five_tasks() -> str:
+        """
+        Resource that returns the 5 most recently created tasks.
+        """
+        with get_db_context() as db:
+            tasks = db.query(Task).order_by(Task.id.desc()).limit(5).all()
+            items = [
+                TaskRead.model_validate(task).model_dump(mode="json") for task in tasks
+            ]
+        return json.dumps(items, indent=2, default=str)
+
+
+    @mcp.resource("tasks://{task_id}")
+    def resource_get_task_by_id(task_id: int) -> str:
+        """
+        Resource that returns a task by ID.
+        """
+        with get_db_context() as db:
+            task = db.query(Task).filter(Task.id == task_id).first()
+            if not task:
+                return json.dumps({"error": f"Task {task_id} not found."})
+            item = TaskRead.model_validate(task).model_dump(mode="json")
+        return json.dumps(item, indent=2, default=str)
+
+
+    @mcp.prompt("Last five tasks")
+    def prompt_last_five_tasks() -> list[dict]:
+        """
+        Prompt that returns the 5 most recently created tasks as a list of dicts.
+        """
+        with get_db_context() as db:
+            tasks = db.query(Task).order_by(Task.id.desc()).limit(5).all()
+            items = [TaskRead.model_validate(task).model_dump(mode="json") for task in tasks]
+        
+        return [
+            {
+                "role": "user",
+                "content": (
+                    f"Here are the 5 most recently created tasks:\n\n{json.dumps(items, indent=2, default=str)}"
+                    "\n\nPlease summarize these tasks and identify any that are overdue based on their due dates."
+                )
+            }
+        ]
+    
+
+    @mcp.prompt()
+    def plan_overdue_tasks() -> list[dict]:
+        """
+        Prompt that identifies overdue tasks and creates a plan to address them.
+        """
+        with get_db_context() as db:
+            now = datetime.now()
+            overdue_tasks = db.query(Task).filter(Task.due_date < now, Task.status != "done").all()
+            items = [TaskRead.model_validate(task).model_dump(mode="json") for task in overdue_tasks]
+
+        return [
+            {
+                "role": "user",
+                "content": (
+                    f"The following tasks are overdue:\n\n{json.dumps(items, indent=2, default=str)}"
+                    "\n\nPlease create a plan to address these overdue tasks, including any necessary steps and prioritization."
+                )
+            }
+        ]
