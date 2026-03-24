@@ -24,7 +24,7 @@ USER appuser
 
 EXPOSE 8101
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')" || exit 1
+      CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')" || exit 1
 
 CMD ["gunicorn", "project_wsx.main:app", \
       "-k", "uvicorn.workers.UvicornWorker", \
