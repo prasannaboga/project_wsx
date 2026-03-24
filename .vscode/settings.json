@@ -3,5 +3,6 @@
     "files.trimFinalNewlines": true,
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 2000,
-    "python.terminal.useEnvFile": true
+    "python.terminal.useEnvFile": true,
+    "ruby.rubocop.onSave": false
 }
