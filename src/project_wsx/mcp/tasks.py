@@ -10,7 +10,11 @@ from project_wsx.schemas.task_base import TaskRead
 
 
 def register(mcp):
-    @mcp.tool()
+    @mcp.tool(
+        name="create_task",
+        title="Create Task",
+        description="Create a new task with a title and due date.",
+    )
     async def create_task(title: str, due_date: str) -> dict:
         parsed_due_date = datetime.fromisoformat(due_date)
 
@@ -49,7 +53,7 @@ def register(mcp):
         Args:
             search: Partial title to filter by (case-insensitive).
             skip:   Number of records to skip (for pagination).
-            limit:  Maximum number of records to return (max 50).
+            limit:  Maximum number of records to return (max 10).
 
         Returns:
             A list of task dicts ordered by newest first.
