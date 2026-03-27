@@ -1,6 +1,6 @@
 from project_wsx.core.logging import logger, setup_logging
 
-setup_logging() # noqa: E402 — must run before other imports trigger logging
+setup_logging()  # noqa: E402 — must run before other imports trigger logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,6 +10,32 @@ from project_wsx.core.database import init_db
 from project_wsx.core.settings import Settings
 from project_wsx.mcp.registry import register_all
 from project_wsx.mcp.server import create_mcp
+
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+
+class MCPPathMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if request.scope["path"] == "/mcp":
+            request.scope["path"] = "/mcp/"
+            request.scope["raw_path"] = b"/mcp/"
+
+        return await call_next(request)
+
+
+class AuthHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if response.status_code == 401:
+            response.headers["WWW-Authenticate"] = (
+                'Bearer error="invalid_token", '
+                'error_description="Authentication required", '
+                'resource_metadata="http://localhost:8101/.well-known/oauth-protected-resource/mcp"'
+            )
+
+        return response
+
 
 settings = Settings()
 mcp = create_mcp()
@@ -36,6 +62,10 @@ app = FastAPI(
 )
 
 
+app.add_middleware(AuthHeaderMiddleware)
+app.add_middleware(MCPPathMiddleware)
+
+
 @app.get("/")
 def index():
     return {"Hello": "World"}
@@ -46,7 +76,40 @@ def health():
     return {"status": "ok", "environment": settings.environment}
 
 
+@app.get("/.well-known/oauth-authorization-server")
+def oauth_authorization_server():
+    data = {
+        "issuer": f"https://{settings.auth0_domain}/",
+        "authorization_endpoint": f"https://{settings.auth0_domain}/authorize",
+        "token_endpoint": f"https://{settings.auth0_domain}/oauth/token",
+        "jwks_uri": f"https://{settings.auth0_domain}/.well-known/jwks.json",
+        "scopes_supported": ["openid", "profile", "email", "read:tasks", "write:tasks"],
+        "response_types_supported": ["code"],
+        "grant_types_supported": [
+            "authorization_code",
+            "refresh_token",
+        ],
+        "code_challenge_methods_supported": ["S256"],
+        "token_endpoint_auth_methods_supported": [
+            "client_secret_basic",
+            "client_secret_post",
+        ],
+    }
+    return data
+
+
+@app.get("/.well-known/oauth-protected-resource/mcp")
+async def oauth_protected_resource(request: Request):
+    base_url = str(request.base_url).rstrip("/")
+
+    return {
+        "resource": f"{base_url}/mcp",
+        "authorization_servers": [f"https://{settings.auth0_domain}/"],
+        "scopes_supported": ["openid", "profile", "email", "read:tasks", "write:tasks"],
+        "bearer_methods_supported": ["header"],
+    }
+
+
 app.include_router(api_router, prefix="/api")
-
-
+app.router.redirect_slashes = False
 app.mount("/mcp", mcp.streamable_http_app(), name="MCP Server")
