@@ -13,3 +13,4 @@ data/*
 .DS_Store
 testcode.ipynb
 todo.md
+.vscode/mcp.json

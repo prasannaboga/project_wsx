@@ -29,15 +29,16 @@ class AuthHeaderMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         if response.status_code == 401:
             response.headers["WWW-Authenticate"] = (
-                'Bearer error="invalid_token", '
+                'Bearer realm="OAuth", '
+                'error="invalid_token", '
                 'error_description="Authentication required", '
                 'resource_metadata="http://localhost:8101/.well-known/oauth-protected-resource/mcp"'
             )
-
         return response
 
 
 settings = Settings()
+logger.debug(f"Loaded settings: {settings.model_dump()}")
 mcp = create_mcp()
 register_all(mcp)
 
@@ -46,7 +47,6 @@ register_all(mcp)
 async def lifespan(app: FastAPI):
     logger.debug("Initializing database...")
     init_db()
-
     async with mcp.session_manager.run():
         logger.debug("MCP server is running...")
         yield
@@ -77,12 +77,14 @@ def health():
 
 
 @app.get("/.well-known/oauth-authorization-server")
-def oauth_authorization_server():
+def oauth_authorization_server(request: Request):
+    base_url = str(request.base_url).rstrip("/")
     data = {
-        "issuer": f"https://{settings.auth0_domain}/",
+        "issuer": base_url,
         "authorization_endpoint": f"https://{settings.auth0_domain}/authorize",
         "token_endpoint": f"https://{settings.auth0_domain}/oauth/token",
         "jwks_uri": f"https://{settings.auth0_domain}/.well-known/jwks.json",
+        "registration_endpoint": f"{base_url}/oauth/register",
         "scopes_supported": ["openid", "profile", "email", "read:tasks", "write:tasks"],
         "response_types_supported": ["code"],
         "grant_types_supported": [
@@ -104,9 +106,27 @@ async def oauth_protected_resource(request: Request):
 
     return {
         "resource": f"{base_url}/mcp",
-        "authorization_servers": [f"https://{settings.auth0_domain}/"],
+        "authorization_servers": [base_url],
         "scopes_supported": ["openid", "profile", "email", "read:tasks", "write:tasks"],
         "bearer_methods_supported": ["header"],
+    }
+
+
+@app.post("/oauth/register")
+async def oauth_register(request: Request):
+    base_url = str(request.base_url).rstrip("/")
+    return {
+        "client_id": settings.auth0_client_id,
+        "client_secret": settings.auth0_client_secret,
+        "redirect_uris": [
+            "https://oauth.pstmn.io/v1/callback",
+            f"{base_url}/callback",
+            "https://vscode.dev/redirect",
+            "cursor://anysphere.cursor-mcp/oauth/callback"
+        ],
+        "grant_types": ["authorization_code", "refresh_token"],
+        "response_types": ["code"],
+        "token_endpoint_auth_method": "client_secret_post",
     }
 
 
