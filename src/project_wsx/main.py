@@ -27,6 +27,13 @@ class AuthHeaderMiddleware(BaseHTTPMiddleware):
             )
         return response
 
+class MCPPathMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if request.scope["path"] == "/mcp":
+            request.scope["path"] = "/mcp/"
+            request.scope["raw_path"] = b"/mcp/"
+        return await call_next(request)
+
 
 settings = Settings()
 logger.debug(f"Loaded settings: {settings.model_dump()}")
@@ -53,6 +60,7 @@ app = FastAPI(
 )
 
 
+app.add_middleware(MCPPathMiddleware)
 app.add_middleware(AuthHeaderMiddleware)
 
 
@@ -122,4 +130,4 @@ async def oauth_register(request: Request):
 
 app.include_router(api_router, prefix="/api")
 app.mount("/mcp", mcp.streamable_http_app(), name="MCP Server")
-# app.router.redirect_slashes = False
+app.router.redirect_slashes = False
