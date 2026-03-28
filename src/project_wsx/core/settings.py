@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     auth0_audience: str | None = None
     auth0_client_id: str | None = None
     auth0_client_secret: str | None = None
+    mcp_resource_url: str | None = None
 
     # MCP 
     mcp_debug: bool = True

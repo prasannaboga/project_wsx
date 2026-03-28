@@ -15,15 +15,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
 
-class MCPPathMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if request.scope["path"] == "/mcp":
-            request.scope["path"] = "/mcp/"
-            request.scope["raw_path"] = b"/mcp/"
-
-        return await call_next(request)
-
-
 class AuthHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
@@ -63,7 +54,6 @@ app = FastAPI(
 
 
 app.add_middleware(AuthHeaderMiddleware)
-app.add_middleware(MCPPathMiddleware)
 
 
 @app.get("/")
@@ -122,7 +112,7 @@ async def oauth_register(request: Request):
             "https://oauth.pstmn.io/v1/callback",
             f"{base_url}/callback",
             "https://vscode.dev/redirect",
-            "cursor://anysphere.cursor-mcp/oauth/callback"
+            "cursor://anysphere.cursor-mcp/oauth/callback",
         ],
         "grant_types": ["authorization_code", "refresh_token"],
         "response_types": ["code"],
@@ -131,5 +121,5 @@ async def oauth_register(request: Request):
 
 
 app.include_router(api_router, prefix="/api")
-app.router.redirect_slashes = False
 app.mount("/mcp", mcp.streamable_http_app(), name="MCP Server")
+# app.router.redirect_slashes = False

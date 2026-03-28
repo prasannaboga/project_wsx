@@ -11,7 +11,7 @@ settings = Settings()
 
 auth_settings = AuthSettings(
     issuer_url=AnyHttpUrl(f"https://{settings.auth0_domain}/"),
-    resource_server_url=AnyHttpUrl("http://localhost:8101/mcp"),
+    resource_server_url=settings.mcp_resource_url,
     required_scopes=["read:tasks", "write:tasks", "openid", "profile", "email"],
 )
 
@@ -56,7 +56,7 @@ def create_mcp():
         debug=settings.mcp_debug,
         json_response=True,
         log_level=settings.mcp_log_level,
-        # stateless_http=True,
+        stateless_http=True,
         streamable_http_path="/",
         auth=auth_settings,
         token_verifier=token_verifier,
