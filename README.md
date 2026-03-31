@@ -18,6 +18,10 @@ uvicorn project_wsx.main:app --host 0.0.0.0 --port 8101 --reload --log-level=deb
 uvicorn project_wsx.main:app --host 0.0.0.0 --port 8101 --workers 4 --log-level=debug
 ```
 
+```
+npx @modelcontextprotocol/inspector http://localhost:8101/mcp
+```
+
 Production
 ```
 PYTHONPATH=src gunicorn project_wsx.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8101 --workers 4 --log-level debug --timeout 120
