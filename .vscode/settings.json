@@ -4,5 +4,6 @@
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 2000,
     "python.terminal.useEnvFile": true,
-    "ruby.rubocop.onSave": false
+    "ruby.rubocop.onSave": false,
+    "editor.fontSize": 14
 }
