@@ -4,6 +4,9 @@ setup_logging()  # noqa: E402 — must run before other imports trigger logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 from project_wsx.api import api_router
 from project_wsx.core.database import init_db
@@ -11,12 +14,11 @@ from project_wsx.core.settings import Settings
 from project_wsx.mcp.registry import register_all
 from project_wsx.mcp.server import create_mcp
 
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-
 
 class AuthHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        if request.method == "OPTIONS":
+            return await call_next(request)
         response = await call_next(request)
         if response.status_code == 401:
             response.headers["WWW-Authenticate"] = (
@@ -59,6 +61,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+mcp_inspector_url = "http://localhost:6274"  # MCP Inspector URL
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[mcp_inspector_url],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_middleware(MCPPathMiddleware)
 app.add_middleware(AuthHeaderMiddleware)
@@ -109,22 +119,51 @@ async def oauth_protected_resource(request: Request):
         "bearer_methods_supported": ["header"],
     }
 
+@app.get("/.well-known/oauth-protected-resource")
+async def oauth_protected_resource_base(request: Request):
+    base_url = str(request.base_url).rstrip("/")
+    return {
+        "resource": f"{base_url}/mcp",
+        "authorization_servers": [base_url],
+        "scopes_supported": ["openid", "profile", "email", "read:tasks", "write:tasks"],
+        "bearer_methods_supported": ["header"],
+    }
+
+@app.get("/.well-known/openid-configuration")
+def openid_configuration():
+    return {
+        "issuer": f"https://{settings.auth0_domain}/",
+        "authorization_endpoint": f"https://{settings.auth0_domain}/authorize",
+        "token_endpoint": f"https://{settings.auth0_domain}/oauth/token",
+        "jwks_uri": f"https://{settings.auth0_domain}/.well-known/jwks.json",
+        "scopes_supported": ["openid", "profile", "email", "read:tasks", "write:tasks"],
+        "response_types_supported": ["code"],
+        "grant_types_supported": ["authorization_code", "refresh_token"],
+        "code_challenge_methods_supported": ["S256"],
+    }
+
 
 @app.post("/oauth/register")
 async def oauth_register(request: Request):
     base_url = str(request.base_url).rstrip("/")
+    raw = await request.body()
+    logger.debug(f"Raw body: {raw}")
+    logger.debug(f"Content-Type: {request.headers.get('content-type')}")
+    
+    try:
+        body = await request.json()
+    except Exception:
+        # might be form-encoded
+        body = dict(await request.form())
+    
+    logger.debug(f"Parsed body: {body}")
+    
     return {
         "client_id": settings.auth0_client_id,
-        "client_secret": settings.auth0_client_secret,
-        "redirect_uris": [
-            "https://oauth.pstmn.io/v1/callback",
-            f"{base_url}/callback",
-            "https://vscode.dev/redirect",
-            "cursor://anysphere.cursor-mcp/oauth/callback",
-        ],
+        "redirect_uris": body.get("redirect_uris", [f"{base_url}/oauth/callback",]),
         "grant_types": ["authorization_code", "refresh_token"],
         "response_types": ["code"],
-        "token_endpoint_auth_method": "client_secret_post",
+        "token_endpoint_auth_method": "none",
     }
 
 
