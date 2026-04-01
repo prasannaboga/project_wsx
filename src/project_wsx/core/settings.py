@@ -1,4 +1,4 @@
-from pydantic import computed_field
+from pydantic import computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,4 +16,11 @@ class Settings(BaseSettings):
     mcp_debug: bool = True
     mcp_log_level: str = "DEBUG"
 
+    # CORS
+    cors_origins_str: str = "http://localhost:6274"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins_str.split(",")]
